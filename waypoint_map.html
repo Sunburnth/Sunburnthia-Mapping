@@ -813,18 +813,21 @@ let currentTheme = "light";
 let tierColors = { primary: "red", secondary: "yellow", tertiary: "green", regular: "cyan" };
 
 // Tiers based on number of waypoints assigned to each metro
-// PRIMARY = 9+, REGULAR = everything else
+// PRIMARY = 13+ cities, SECONDARY = 9-12, TERTIARY = 4-8
 const PRIMARY = new Set([
-  "Los Angeles","San Francisco","Dallas","New York City","Phoenix","Denver",
-  "Miami","Seattle","Chicago","Detroit","Houston",
+  "Los Angeles","San Francisco","New York City","Chicago","Dallas",
+  "Miami","Washington","Boston","Minneapolis","Seattle","Detroit",
+  "Phoenix","Salt Lake City","Denver","Philadelphia",
 ]);
 const SECONDARY = new Set([
-  "Las Vegas","Kansas City MO","Tampa","Salt Lake City","Sacramento","Norfolk",
-  "Minneapolis","Boston",
+  "Atlanta","Tampa","Orlando","Fort Worth","Kansas City MO",
+  "Baltimore","New Haven",
 ]);
 const TERTIARY = new Set([
-  "Portland OR","Boise","Washington","Atlanta","Baltimore",
-  "Oklahoma City","McAllen","Providence","Philadelphia",
+  "Portland OR","Las Vegas","Charlotte","Norfolk","Providence",
+  "Austin","Oklahoma City","St. Louis","Indianapolis","Boise",
+  "Tucson","Fayetteville AR","Memphis","Nashville","Fort Myers",
+  "Charleston SC","Raleigh","Cleveland","Toms River","Nashua","McAllen",
 ]);
 
 // Cities within 70.4km of US-Mexico border (permit zones)
