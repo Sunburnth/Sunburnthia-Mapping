@@ -49,6 +49,7 @@ svg { width: 100%; height: 100%; }
 .state { transition: fill 0.4s; }
 .nation { fill: none; }
 .city-dot { cursor: pointer; transition: fill 0.4s; stroke: #000; stroke-width: 0.25px; }
+.city-dot.city-highlighted { stroke: #ff00ff; stroke-width: 2px; fill: #ff00ff !important; opacity: 1 !important; }
 .permit-zone { stroke: #ff6600; stroke-width: 0.4px; }
 
 #panel-column {
@@ -832,6 +833,8 @@ const PERMIT_ZONE_CITIES = new Set([
   "San Diego","Edinburg","McAllen","Mission","El Cajon","Escondido",
   "Las Cruces","San Marcos CA","Vista","Carlsbad","Oceanside","Tucson",
   "Bellingham","San Marcos","Casas Adobes AZ","Harlingen TX",
+  "Santee CA","La Mesa CA","National City CA","Encinitas CA",
+  "Marana AZ","Catalina Foothills AZ",
 ]);
 
 const cities = [
@@ -1915,6 +1918,9 @@ function buildMap(us) {
       if (window.highlightedIstateIds && window.highlightedIstateIds.size > 0 && window.applySearchHighlights) {
         window.applySearchHighlights(k);
       }
+      if (window.highlightedCityNames && window.highlightedCityNames.size > 0 && window.applyCityHighlights) {
+        window.applyCityHighlights();
+      }
       // Update scale bar
       updateScaleBar();
     });
@@ -2801,6 +2807,9 @@ function renderInterstates() {
   
   if (window.highlightedIstateIds && window.highlightedIstateIds.size > 0) {
     setTimeout(() => { window.applySearchHighlights(); }, 10);
+  }
+  if (window.highlightedCityNames && window.highlightedCityNames.size > 0) {
+    setTimeout(() => { window.applyCityHighlights(); }, 10);
   }
 }
 
@@ -4126,12 +4135,27 @@ window.applySearchHighlights = function(zoomLevel) {
     });
 };
 
+window.highlightedCityNames = new Set();
+
+window.applyCityHighlights = function() {
+  if (!mapGroup) return;
+  mapGroup.selectAll(".city-dot")
+    .classed("city-highlighted", function() {
+      var d = d3.select(this).datum();
+      return d && window.highlightedCityNames.has(d.n);
+    });
+  // Raise highlighted dots above others
+  mapGroup.selectAll(".city-dot.city-highlighted").raise();
+};
+
 window.clearSearchHighlights = function() {
   if (!mapGroup) return;
   window.highlightedIstateIds.clear();
+  window.highlightedCityNames.clear();
   const k = d3.zoomTransform(document.getElementById("usa")).k || 1;
   mapGroup.selectAll(".istate-ghost, .istate-planned, .istate-seg")
     .attr("stroke-width", 2.1 / k);
+  mapGroup.selectAll(".city-dot").classed("city-highlighted", false);
 };
 
 if (istateSearchBox) {
@@ -4196,6 +4220,15 @@ if (istateSearchBox) {
       matched.forEach(i => window.highlightedIstateIds.add(String(i.id)));
       setTimeout(() => { window.applySearchHighlights(); }, 80);
     }
+
+    // Also search for matching city names (case-insensitive, partial match)
+    const queryLower = query.toLowerCase();
+    const matchedCities = cities.filter(c => c.n.toLowerCase().includes(queryLower));
+    if (matchedCities.length > 0 && mapGroup) {
+      matchedCities.forEach(c => window.highlightedCityNames.add(c.n));
+      setTimeout(() => { window.applyCityHighlights(); }, 80);
+    }
+
     // Clear the search box after adding so user can type the next one
     istateSearchBox.value = "";
   };
